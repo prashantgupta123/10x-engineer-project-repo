@@ -1,0 +1,112 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE and Editor
+*.idea/
+*.vscode/
+*.suo
+*.ntvs*
+
+# Byte-compiled
+*.py[cod]
+*$py.class
+
+# Distribution
+.Python
+build/
+dist/
+
+# Production
+instance/
+.webassets-cache
+
+# Django stuff:
+*.mo
+*.pot
+
+# Flask stuff:
+*.env
+.flaskenv
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# pyenv
+.python-version
+
+# celery
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Encrypted
+*.key
+
+# dotenv
+.env.local
+.env.*
+
+# MySql
+.myi
+# MS SQL Server
+*.mdf
+*.ldf
+
+# SQL
+.sql
+
+# Backup files
+*.bak
+*.swp
+
+# Comments
+!.gitignore
+
+# symbols
+*.pid
+*.seed
+
+# Caches
+*_cache/
+# Logs
+node_modules
+logs/
+*.log
+
+# Testing
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# Pytest
+.pytest_cache/
+.cache/
+__pycache__
+
+# API documentation
+docs/.API*
+*.yaml
+
+# Editor states
+.vscode
+.idea
+
+# Database
+*.sqlite3
+
+# Docker
+docker-compose.yml
