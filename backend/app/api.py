@@ -74,8 +74,7 @@ def get_prompt(prompt_id: str):
     # Check if prompt exists. If not, raise 404 error.
     if not prompt:
         raise HTTPException(status_code=404, detail="Prompt not found")
-
-    # If prompt exists, return the prompt.
+    else:
         return prompt
 
 
