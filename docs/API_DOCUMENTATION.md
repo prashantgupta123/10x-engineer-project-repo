@@ -120,6 +120,32 @@ http://[BASE_URL]
            }'
   ```
 
+### Partial Update Prompt
+
+#### `PATCH /prompts/{prompt_id}`
+
+- **Body**
+  - Optional fields: You can provide any subset of the `PromptUpdate` schema fields to update only those attributes.
+- **Response**
+  - Status: 200
+  - Body: Partially updated prompt.
+- **Error**
+  - Status: 404, prompt not found.
+  - Status: 400, collection not found if the `collection_id` provided does not exist.
+
+- **cURL**
+  ```bash
+  curl -X PATCH http://[BASE_URL]/prompts/[PROMPT_ID] \
+       -H "Content-Type: application/json" \
+       -d '{
+             "title": "Partial Updated Prompt Title",
+             "collection_id": "[OPTIONAL_NEW_COLLECTION_ID]"
+           }'
+  ```
+
+- **Notes**
+  - Only the fields provided in the request body will be updated.
+
 #### Delete Prompt
 
 - **Response**
