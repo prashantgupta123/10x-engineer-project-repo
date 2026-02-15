@@ -64,10 +64,6 @@ def list_prompts(
 
 @app.get("/prompts/{prompt_id}", response_model=Prompt)
 def get_prompt(prompt_id: str):
-    # BUG #1: This will raise a 500 error if prompt doesn't exist
-    # because we're accessing .id on None
-    # Should return 404 instead!
-
     # Retrieve prompt
     prompt = storage.get_prompt(prompt_id)
     
