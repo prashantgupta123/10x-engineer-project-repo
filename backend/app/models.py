@@ -31,13 +31,18 @@ class PromptUpdate(PromptBase):
     pass
 
 
-class Prompt(PromptBase):
+class Prompt(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
+    content: str = Field(..., min_length=1)
+    description: Optional[str] = Field(None, max_length=500)
+    collection_id: Optional[str] = None
     id: str = Field(default_factory=generate_id)
     created_at: datetime = Field(default_factory=get_current_time)
     updated_at: datetime = Field(default_factory=get_current_time)
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        'from_attributes': True
+    }
 
 
 # ============== Collection Models ==============
@@ -49,14 +54,15 @@ class CollectionBase(BaseModel):
 
 class CollectionCreate(CollectionBase):
     pass
-
-
-class Collection(CollectionBase):
+class Collection(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    description: Optional[str] = Field(None, max_length=500)
     id: str = Field(default_factory=generate_id)
     created_at: datetime = Field(default_factory=get_current_time)
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        'from_attributes': True
+    }
 
 
 # ============== Response Models ==============
@@ -74,3 +80,4 @@ class CollectionList(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     version: str
+
