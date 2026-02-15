@@ -62,8 +62,6 @@ def list_prompts(
     return PromptList(prompts=prompts, total=len(prompts))
 
 
-from fastapi import FastAPI, HTTPException
-
 @app.get("/prompts/{prompt_id}", response_model=Prompt)
 def get_prompt(prompt_id: str):
     # BUG #1: This will raise a 500 error if prompt doesn't exist
