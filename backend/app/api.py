@@ -62,15 +62,22 @@ def list_prompts(
     return PromptList(prompts=prompts, total=len(prompts))
 
 
+from fastapi import FastAPI, HTTPException
+
 @app.get("/prompts/{prompt_id}", response_model=Prompt)
 def get_prompt(prompt_id: str):
     # BUG #1: This will raise a 500 error if prompt doesn't exist
     # because we're accessing .id on None
     # Should return 404 instead!
+
+    # Retrieve prompt
     prompt = storage.get_prompt(prompt_id)
     
-    # This line causes the bug - accessing attribute on None
-    if prompt.id:
+    # Check if prompt exists. If not, raise 404 error.
+    if not prompt:
+        raise HTTPException(status_code=404, detail="Prompt not found")
+
+    # If prompt exists, return the prompt.
         return prompt
 
 
