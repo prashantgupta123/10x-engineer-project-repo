@@ -1,34 +1,229 @@
-# Custom AI Agent Rules for Project
+# AI Agent Rules for PromptLab
 
-## General Guidelines
-- Ensure that all contributions align with the project's overall goals and architectural principles.
-- Follow the defined coding standards and documentation practices diligently.
+Custom rules for AI coding assistants (Continue, Cursor, etc.) working on the PromptLab project.
 
-## Specific Instructions
+## Project Context
 
-### API Endpoints
-- Always document new API endpoints in the `API_REFERENCE.md` file with detailed examples and error handling.
-- Ensure proper use of HTTP status codes and provide standardized error responses.
+**Type:** FastAPI REST API for AI Prompt Management
+**Language:** Python 3.10+
+**Framework:** FastAPI + Pydantic
+**Storage:** In-memory (designed for easy database migration)
 
-### Testing
-- Write comprehensive unit tests for any new functionality. Tests should be placed in the `tests/` directory and follow the convention used in existing tests.
+## Code Style Requirements
 
-### Documentation
-- Use Google-style docstrings for all new functions and classes.
-- Update the README or relevant documentation sections whenever a significant change is made.
+### 1. Type Hints (Mandatory)
+```python
+# Always include type hints
+def get_prompt(prompt_id: str) -> Optional[Prompt]:
+    return self._prompts.get(prompt_id)
+```
 
-### Collaboration
-- Collaborate effectively using pull requests, ensuring code reviews are conducted for all changes.
-- Engage with the community through issue discussions and feedback to facilitate shared learning.
+### 2. Google-Style Docstrings (Mandatory)
+```python
+def create_prompt(prompt: Prompt) -> Prompt:
+    """Create a new prompt in storage.
+    
+    Args:
+        prompt (Prompt): The prompt object to store.
+        
+    Returns:
+        Prompt: The stored prompt object.
+    """
+```
 
-### Frontend Integration
-- Plan for future frontend expansion by ensuring backend endpoints are flexible and well-defined.
+### 3. PEP 8 Compliance
+- Max line length: 100 characters
+- 4 spaces for indentation
+- Blank lines: 2 between top-level definitions, 1 between methods
 
-### Security & Maintenance
-- Regularly check for and address any security vulnerabilities in the dependencies and code.
-- Refactor code for maintainability and clarity when necessary, keeping in mind the overall design patterns of the application.
+## FastAPI Endpoint Standards
 
-### Use of AI Tools
-- Use AI-assisted tools to enhance productivity, ensuring that suggestions are reviewed and adapted to fit the codebase standards.
+### Endpoint Template
+```python
+@app.post("/resource", response_model=Resource, status_code=201)
+def create_resource(data: ResourceCreate):
+    """Create a new resource.
+    
+    Args:
+        data (ResourceCreate): Resource creation data.
+        
+    Returns:
+        Resource: The created resource.
+        
+    Raises:
+        HTTPException: If validation fails.
+    """
+    # Validate foreign keys first
+    # Create resource
+    # Return with proper status code
+```
 
-By adhering to these rules, contributions will help maintain the quality and progression of the project effectively.
+### Status Code Rules
+- `201` for POST (creation)
+- `200` for GET, PUT, PATCH
+- `204` for DELETE
+- `404` for not found
+- `400` for bad request (foreign key errors)
+- `422` for validation errors (automatic)
+
+### Error Handling Pattern
+```python
+if not resource:
+    raise HTTPException(status_code=404, detail="Resource not found")
+```
+
+## Pydantic Model Standards
+
+### Model Separation
+```python
+class ResourceBase(BaseModel):
+    """Base fields for resource."""
+    name: str = Field(..., min_length=1, max_length=100)
+
+class ResourceCreate(ResourceBase):
+    """Model for creating resources."""
+    pass
+
+class Resource(BaseModel):
+    """Complete resource with generated fields."""
+    name: str
+    id: str = Field(default_factory=generate_id)
+    created_at: datetime = Field(default_factory=get_current_time)
+```
+
+### Field Validation
+```python
+title: str = Field(..., min_length=1, max_length=200)
+description: Optional[str] = Field(None, max_length=500)
+```
+
+## Testing Standards
+
+### Test Class Structure
+```python
+class TestResource:
+    """Tests for resource endpoints."""
+    
+    def test_create_resource(self, client, sample_data):
+        response = client.post("/resources", json=sample_data)
+        assert response.status_code == 201
+        assert "id" in response.json()
+```
+
+### Use Fixtures
+```python
+@pytest.fixture
+def sample_data():
+    return {"name": "Test", "content": "Test content"}
+```
+
+## Useful Code Patterns
+
+### Pattern 1: List with Filters
+```python
+@app.get("/items", response_model=ItemList)
+def list_items(
+    category: Optional[str] = None,
+    search: Optional[str] = None
+):
+    items = storage.get_all_items()
+    
+    if category:
+        items = [i for i in items if i.category == category]
+    
+    if search:
+        items = [i for i in items if search.lower() in i.name.lower()]
+    
+    return ItemList(items=items, total=len(items))
+```
+
+### Pattern 2: Foreign Key Validation
+```python
+if data.parent_id:
+    parent = storage.get_parent(data.parent_id)
+    if not parent:
+        raise HTTPException(status_code=400, detail="Parent not found")
+```
+
+### Pattern 3: Update with Timestamp
+```python
+updated = Resource(
+    id=existing.id,
+    **data.model_dump(),
+    created_at=existing.created_at,
+    updated_at=get_current_time()
+)
+```
+
+### Pattern 4: Utility Functions
+```python
+def filter_by_field(items: List[T], field: str, value: Any) -> List[T]:
+    """Filter items by field value.
+    
+    Args:
+        items (List[T]): Items to filter.
+        field (str): Field name.
+        value (Any): Value to match.
+        
+    Returns:
+        List[T]: Filtered items.
+    """
+    return [item for item in items if getattr(item, field) == value]
+```
+
+## File Organization
+
+**When adding new code:**
+- API endpoints → `backend/app/api.py`
+- Data models → `backend/app/models.py`
+- Storage methods → `backend/app/storage.py`
+- Business logic → `backend/app/utils.py`
+- Tests → `backend/tests/test_api.py`
+- Documentation → `docs/API_REFERENCE.md`
+
+## Workflow for New Features
+
+1. **Models** - Define Pydantic models in `models.py`
+2. **Storage** - Add CRUD methods in `storage.py`
+3. **Endpoint** - Create API endpoint in `api.py`
+4. **Tests** - Write tests in `tests/test_api.py`
+5. **Docs** - Update `docs/API_REFERENCE.md`
+
+## Common Mistakes to Avoid
+
+❌ Missing type hints
+❌ Missing docstrings
+❌ Wrong status codes (e.g., 200 for POST)
+❌ No error handling
+❌ Business logic in endpoints (use utils.py)
+❌ Skipping tests
+❌ Not updating API documentation
+
+## Import Order
+
+```python
+# 1. Standard library
+from datetime import datetime
+from typing import Optional, List
+
+# 2. Third-party
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
+
+# 3. Local
+from app.models import Prompt
+from app.storage import storage
+from app.utils import filter_prompts
+```
+
+## Quick Checklist
+
+Before submitting code, verify:
+- ☑ Type hints on all functions
+- ☑ Google-style docstrings
+- ☑ Proper HTTP status codes
+- ☑ Error handling with HTTPException
+- ☑ Tests written and passing
+- ☑ API documentation updated
+- ☑ PEP 8 compliant
+- ☑ No hardcoded values
