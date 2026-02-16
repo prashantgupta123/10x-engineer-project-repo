@@ -1,0 +1,34 @@
+# Custom AI Agent Rules for Project
+
+## General Guidelines
+- Ensure that all contributions align with the project's overall goals and architectural principles.
+- Follow the defined coding standards and documentation practices diligently.
+
+## Specific Instructions
+
+### API Endpoints
+- Always document new API endpoints in the `API_REFERENCE.md` file with detailed examples and error handling.
+- Ensure proper use of HTTP status codes and provide standardized error responses.
+
+### Testing
+- Write comprehensive unit tests for any new functionality. Tests should be placed in the `tests/` directory and follow the convention used in existing tests.
+
+### Documentation
+- Use Google-style docstrings for all new functions and classes.
+- Update the README or relevant documentation sections whenever a significant change is made.
+
+### Collaboration
+- Collaborate effectively using pull requests, ensuring code reviews are conducted for all changes.
+- Engage with the community through issue discussions and feedback to facilitate shared learning.
+
+### Frontend Integration
+- Plan for future frontend expansion by ensuring backend endpoints are flexible and well-defined.
+
+### Security & Maintenance
+- Regularly check for and address any security vulnerabilities in the dependencies and code.
+- Refactor code for maintainability and clarity when necessary, keeping in mind the overall design patterns of the application.
+
+### Use of AI Tools
+- Use AI-assisted tools to enhance productivity, ensuring that suggestions are reviewed and adapted to fit the codebase standards.
+
+By adhering to these rules, contributions will help maintain the quality and progression of the project effectively.
