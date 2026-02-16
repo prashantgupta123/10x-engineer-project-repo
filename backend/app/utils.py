@@ -7,17 +7,39 @@ from app.models import Prompt
 def sort_prompts_by_date(prompts: List[Prompt], descending: bool = True) -> List[Prompt]:
     """Sort prompts by creation date.
     
-    The 'descending' parameter determines if newest prompts are first.
+    Args:
+        prompts (List[Prompt]): List of prompts to sort.
+        descending (bool): If True, newest prompts first. Defaults to True.
+        
+    Returns:
+        List[Prompt]: Sorted list of prompts.
     """
-    # Fixed bug - now respects the 'descending' parameter.
     return sorted(prompts, key=lambda p: p.created_at, reverse=descending)
 
 
 def filter_prompts_by_collection(prompts: List[Prompt], collection_id: str) -> List[Prompt]:
+    """Filter prompts by collection ID.
+    
+    Args:
+        prompts (List[Prompt]): List of prompts to filter.
+        collection_id (str): The collection ID to filter by.
+        
+    Returns:
+        List[Prompt]: Prompts belonging to the specified collection.
+    """
     return [p for p in prompts if p.collection_id == collection_id]
 
 
 def search_prompts(prompts: List[Prompt], query: str) -> List[Prompt]:
+    """Search prompts by query string in title and description.
+    
+    Args:
+        prompts (List[Prompt]): List of prompts to search.
+        query (str): Search query string (case-insensitive).
+        
+    Returns:
+        List[Prompt]: Prompts matching the search query.
+    """
     query_lower = query.lower()
     return [
         p for p in prompts 
@@ -27,12 +49,19 @@ def search_prompts(prompts: List[Prompt], query: str) -> List[Prompt]:
 
 
 def validate_prompt_content(content: str) -> bool:
-    """Check if prompt content is valid.
+    """Validate prompt content meets minimum requirements.
     
-    A valid prompt should:
-    - Not be empty
-    - Not be just whitespace
-    - Be at least 10 characters
+    Args:
+        content (str): The prompt content to validate.
+        
+    Returns:
+        bool: True if content is valid, False otherwise.
+        
+    Note:
+        Valid content must be:
+        - Not empty
+        - Not just whitespace
+        - At least 10 characters long
     """
     if not content or not content.strip():
         return False
@@ -42,7 +71,14 @@ def validate_prompt_content(content: str) -> bool:
 def extract_variables(content: str) -> List[str]:
     """Extract template variables from prompt content.
     
-    Variables are in the format {{variable_name}}
+    Args:
+        content (str): The prompt content to parse.
+        
+    Returns:
+        List[str]: List of variable names found in the content.
+        
+    Note:
+        Variables must be in the format {{variable_name}}.
     """
     import re
     pattern = r'\{\{(\w+)\}\}'
