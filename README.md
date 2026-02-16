@@ -1,167 +1,123 @@
-# PromptLab
+# Project Name
 
-**Your AI Prompt Engineering Platform**
+## Project Overview
 
----
-
-## Welcome to the Team! 👋
-
-Congratulations on joining the PromptLab engineering team! You've been brought on to help us build the next generation of prompt engineering tools.
-
-### What is PromptLab?
-
-PromptLab is an internal tool for AI engineers to **store, organize, and manage their prompts**. Think of it as a "Postman for Prompts" — a professional workspace where teams can:
-
-- 📝 Store prompt templates with variables (`{{input}}`, `{{context}}`)
-- 📁 Organize prompts into collections
-- 🏷️ Tag and search prompts
-- 📜 Track version history
-- 🧪 Test prompts with sample inputs
-
-### The Current Situation
-
-The previous developer left us with a *partially working* backend. The core structure is there, but:
-
-- There are **several bugs** that need fixing
-- Some **features are incomplete**
-- The **documentation is minimal** (you'll fix that)
-- There are **no tests** worth mentioning
-- **No CI/CD pipeline** exists
-- **No frontend** has been built yet
-
-Your job over the next 4 weeks is to transform this into a **production-ready, full-stack application**.
-
----
-
-## Quick Start
-
-### Prerequisites
-
-- Python 3.10+
-- Node.js 18+ (for Week 4)
-- Git
-
-### Run Locally
-
-```bash
-# Clone the repo
-git clone <your-repo-url>
-cd promptlab
-
-# Set up backend
-cd backend
-pip install -r requirements.txt
-python main.py
-```
-
-API runs at: http://localhost:8000
-
-API docs at: http://localhost:8000/docs
-
-### Run Tests
-
-```bash
-cd backend
-pytest tests/ -v
-```
-
----
-
-## Project Structure
-
-```
-promptlab/
-├── README.md                    # You are here
-├── PROJECT_BRIEF.md             # Your assignment details
-├── GRADING_RUBRIC.md            # How you'll be graded
-│
-├── backend/
-│   ├── app/
-│   │   ├── __init__.py
-│   │   ├── api.py              # FastAPI routes (has bugs!)
-│   │   ├── models.py           # Pydantic models
-│   │   ├── storage.py          # In-memory storage
-│   │   └── utils.py            # Helper functions
-│   ├── tests/
-│   │   ├── __init__.py
-│   │   ├── test_api.py         # Basic tests
-│   │   └── conftest.py         # Test fixtures
-│   ├── main.py                 # Entry point
-│   └── requirements.txt
-│
-├── frontend/                    # You'll create this in Week 4
-├── specs/                       # You'll create this in Week 2
-├── docs/                        # You'll create this in Week 2
-└── .github/                     # You'll set up CI/CD in Week 3
-```
-
----
-
-## Your Mission
-
-### 🧪 Experimentation Encouraged!
-While we provide guidelines, **you are the engineer**. If you see a better way to solve a problem using AI, do it!
-- Want to swap the storage layer for a real database? **Go for it.**
-- Want to add Authentication? **Do it.**
-- Want to rewrite the API in a different style? **As long as tests pass, you're clear.**
-
-The goal is to learn how to build *better* software *faster* with AI. Don't be afraid to break things and rebuild them better.
-
-### Week 1: Fix the Backend
-- Understand this codebase using AI
-- Find and fix the bugs
-- Implement missing features
-
-### Week 2: Document Everything
-- Write proper documentation
-- Create feature specifications
-- Set up coding standards
-
-### Week 3: Make it Production-Ready
-- Write comprehensive tests
-- Implement new features with TDD
-- Set up CI/CD and Docker
-
-### Week 4: Build the Frontend
-- Create a React frontend
-- Connect it to the backend
-- Polish the user experience
-
----
-
-## API Endpoints (Current)
-
-| Method | Endpoint | Description | Status |
-|--------|----------|-------------|--------|
-| GET | `/health` | Health check | ✅ Works |
-| GET | `/prompts` | List all prompts | ⚠️ Has issues |
-| GET | `/prompts/{id}` | Get single prompt | ❌ Bug |
-| POST | `/prompts` | Create prompt | ✅ Works |
-| PUT | `/prompts/{id}` | Update prompt | ⚠️ Has issues |
-| DELETE | `/prompts/{id}` | Delete prompt | ✅ Works |
-| GET | `/collections` | List collections | ✅ Works |
-| GET | `/collections/{id}` | Get collection | ✅ Works |
-| POST | `/collections` | Create collection | ✅ Works |
-| DELETE | `/collections/{id}` | Delete collection | ❌ Bug |
-
----
+This project, named **Project Name**, is an AI Prompt Engineering Platform built with a FastAPI backend and a structured frontend. It allows users to manage AI prompts and collections efficiently.
 
 ## Tech Stack
 
-- **Backend**: Python 3.10+, FastAPI, Pydantic
-- **Frontend**: React, Vite (Week 4)
-- **Testing**: pytest
-- **DevOps**: Docker, GitHub Actions (Week 3)
+- **Backend:** FastAPI, Python 3.10+
+- **Frontend:** Placeholder for a future web application (e.g., React, Vue.js)
+- **Database:** Placeholder for database (e.g., SQLite, PostgreSQL)
+- **Others:**
+  - CORS Middleware for handling Cross-Origin Resource Sharing
 
----
+## Project Structure
 
-## Need Help?
+The project is organized as follows:
 
-1. **Use AI tools** — This is an AI-assisted coding course!
-2. Read the `PROJECT_BRIEF.md` for detailed instructions
-3. Check `GRADING_RUBRIC.md` to understand expectations
-4. Ask questions in the course forum
+```
+project-name/
+├── backend/
+│   ├── app/
+│   ├── main.py
+│   ├── requirements.txt
+│   └── tests/
+└── frontend/
+    └── (frontend files will be added here)
+```
 
----
+- **backend/**: Contains the FastAPI application, models, and storage logic.
+- **frontend/**: Placeholder for the future frontend application.
 
-Good luck, and welcome to the team! 🚀
+## Backend
+
+### Overview
+
+The **backend** of this project is built using FastAPI, a modern web framework for building APIs with Python 3.7+ based on standard Python type hints.
+
+### Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/prashantgupta123/10x-engineer-project-repo.git
+   cd 10x-engineer-project-repo/backend
+   ```
+
+2. **Create and activate a virtual environment:**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   ```
+
+3. **Install the dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Run the server:**
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+5. **Access the API docs:**
+   Once the server is running, navigate to `http://localhost:8000/docs` in your browser to access the interactive API documentation provided by Swagger UI.
+
+### Usage
+
+- **Health Check:**  
+  Make a GET request to `/health` to check the status of the API.
+
+- **Prompt Endpoints:**  
+  - List all prompts or filter them by collection or search query via `/prompts`.
+  - Retrieve, update, or delete specific prompts by ID with `/prompts/{prompt_id}`.
+  - Create new prompts using the POST method at `/prompts`.
+
+- **Collection Endpoints:**  
+  - List all collections with `/collections`.
+  - Manage specific collections using `/collections/{collection_id}`.
+
+## Frontend
+
+### Overview
+
+The **frontend** section currently serves as a placeholder, designed for future development to interact with the backend API.
+
+### Setup
+
+1. **Navigate to the frontend directory:**
+   ```bash
+   cd project-name/frontend
+   ```
+
+2. **Install frontend dependencies:**
+   You would typically set up a Node.js environment here and run:
+   ```bash
+   npm install
+   ```
+
+3. **Run the frontend development server:**
+   ```bash
+   npm start
+   ```
+
+### Usage
+
+Once the frontend is developed, it will provide a user-friendly interface to interact with the backend API and manage your AI prompts and collections seamlessly.
+
+## Documentation
+
+- **Backend Documentation:** Accessed via Swagger UI to explore API endpoints.
+- **Codebase Documentation:** Additional documentation can be housed in the `docs/` directory if needed, detailing architecture decisions, additional setup, or integration steps.
+
+## Contributing
+
+If you wish to contribute to this project, please open issues or submit pull requests. We welcome contributions and suggestions.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## Contact
+
+For any inquiries, please contact the maintainers at your-email@example.com.
