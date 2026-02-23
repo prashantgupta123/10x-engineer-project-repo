@@ -1,7 +1,8 @@
 """Utility functions for PromptLab"""
 
 from typing import List
-from app.models import Prompt
+from fastapi import HTTPException
+from app.models import Prompt, Collection
 
 
 def sort_prompts_by_date(prompts: List[Prompt], descending: bool = True) -> List[Prompt]:
@@ -83,4 +84,22 @@ def extract_variables(content: str) -> List[str]:
     import re
     pattern = r'\{\{(\w+)\}\}'
     return re.findall(pattern, content)
+
+
+def get_prompt_or_404(prompt_id: str) -> Prompt:
+    """Retrieve prompt by ID or raise 404 error if not found."""
+    from app.storage import storage
+    prompt = storage.get_prompt(prompt_id)
+    if not prompt:
+        raise HTTPException(status_code=404, detail="Prompt not found")
+    return prompt
+
+
+def get_collection_or_404(collection_id: str) -> Collection:
+    """Retrieve collection by ID or raise 404 error if not found."""
+    from app.storage import storage
+    collection = storage.get_collection(collection_id)
+    if not collection:
+        raise HTTPException(status_code=404, detail="Collection not found")
+    return collection
 

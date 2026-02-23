@@ -12,7 +12,7 @@ from app.models import (
     get_current_time
 )
 from app.storage import storage
-from app.utils import sort_prompts_by_date, filter_prompts_by_collection, search_prompts
+from app.utils import sort_prompts_by_date, filter_prompts_by_collection, search_prompts, get_prompt_or_404, get_collection_or_404
 from app import __version__
 
 # Constants
@@ -108,10 +108,7 @@ def get_prompt(prompt_id: str):
     Raises:
         HTTPException: If the prompt is not found, a 404 error is raised.
     """
-    prompt = storage.get_prompt(prompt_id)
-    if not prompt:
-        raise HTTPException(status_code=404, detail=ERROR_PROMPT_NOT_FOUND)
-    return prompt
+    return get_prompt_or_404(prompt_id)
 
 
 @app.post("/prompts", response_model=Prompt, status_code=201)
@@ -146,10 +143,7 @@ def update_prompt(prompt_id: str, prompt_data: PromptUpdate):
     Raises:
         HTTPException: If the prompt or collection does not exist, appropriate errors are raised.
     """
-    existing = storage.get_prompt(prompt_id)
-    if not existing:
-        raise HTTPException(status_code=404, detail=ERROR_PROMPT_NOT_FOUND)
-    
+    existing = get_prompt_or_404(prompt_id)
     _validate_collection_exists(prompt_data.collection_id)
     
     updated_prompt = Prompt(
@@ -179,9 +173,7 @@ def partial_update_prompt(prompt_id: str, prompt_data: PromptUpdate):
     Raises:
         HTTPException: If the prompt or collection does not exist, appropriate errors are raised.
     """
-    existing = storage.get_prompt(prompt_id)
-    if not existing:
-        raise HTTPException(status_code=404, detail=ERROR_PROMPT_NOT_FOUND)
+    existing = get_prompt_or_404(prompt_id)
     
     update_fields = prompt_data.model_dump(exclude_unset=True)
     if 'collection_id' in update_fields:
@@ -240,10 +232,7 @@ def get_collection(collection_id: str):
     Raises:
         HTTPException: If the collection is not found, a 404 error is raised.
     """
-    collection = storage.get_collection(collection_id)
-    if not collection:
-        raise HTTPException(status_code=404, detail=ERROR_COLLECTION_NOT_FOUND)
-    return collection
+    return get_collection_or_404(collection_id)
 
 
 @app.post("/collections", response_model=Collection, status_code=201)
@@ -295,8 +284,7 @@ def list_prompt_versions(prompt_id: str):
     Raises:
         HTTPException: If the prompt is not found, a 404 error is raised.
     """
-    if not storage.get_prompt(prompt_id):
-        raise HTTPException(status_code=404, detail=ERROR_PROMPT_NOT_FOUND)
+    get_prompt_or_404(prompt_id)
     
     versions = sorted(
         storage.get_versions_by_prompt(prompt_id),
@@ -341,8 +329,7 @@ def create_prompt_version(prompt_id: str, version_data: PromptVersionCreate):
     Raises:
         HTTPException: If the prompt is not found, a 404 error is raised.
     """
-    if not storage.get_prompt(prompt_id):
-        raise HTTPException(status_code=404, detail=ERROR_PROMPT_NOT_FOUND)
+    get_prompt_or_404(prompt_id)
     
     next_version_number = storage.get_latest_version_number(prompt_id) + 1
     version = PromptVersion(
