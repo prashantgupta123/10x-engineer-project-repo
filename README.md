@@ -341,6 +341,38 @@ pytest --cov=app --cov-report=html
 pytest tests/test_api.py::TestPrompts -v
 ```
 
+### Docker Setup
+
+**Build and run with Docker:**
+
+```bash
+# Build the Docker image
+cd backend
+docker build -t backend-api .
+
+# Run the container
+docker run -p 8000:8000 backend-api
+```
+
+**Using Docker Compose (recommended for development):**
+
+```bash
+# From backend directory
+cd backend
+docker-compose up
+
+# Run in detached mode
+docker-compose up -d
+
+# Stop services
+docker-compose down
+```
+
+Docker Compose provides:
+- Auto-reload on code changes
+- Volume mounting for live development
+- Easy service management
+
 ---
 
 ## Usage Examples
