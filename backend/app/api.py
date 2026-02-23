@@ -186,7 +186,10 @@ def partial_update_prompt(prompt_id: str, prompt_data: PromptUpdate):
     updated_data = existing.model_dump()
     update_fields = prompt_data.model_dump(exclude_unset=True)
     updated_data.update(update_fields)
-    updated_prompt = Prompt(**updated_data, id=existing.id, created_at=existing.created_at, updated_at=get_current_time())
+    updated_data['id'] = existing.id
+    updated_data['created_at'] = existing.created_at
+    updated_data['updated_at'] = get_current_time()
+    updated_prompt = Prompt(**updated_data)
     
     return storage.update_prompt(prompt_id, updated_prompt)
 
