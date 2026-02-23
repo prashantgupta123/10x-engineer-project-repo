@@ -348,10 +348,10 @@ pytest tests/test_api.py::TestPrompts -v
 ```bash
 # Build the Docker image
 cd backend
-docker build -t backend-api .
+docker build -t promptlab-api .
 
 # Run the container
-docker run -p 8000:8000 backend-api
+docker run -p 8000:8000 promptlab-api
 ```
 
 **Using Docker Compose (recommended for development):**

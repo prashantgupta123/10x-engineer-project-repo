@@ -7,7 +7,7 @@ on:
     branches: [ main, master, develop ]
 
 jobs:
-  test:
+  backend:
     runs-on: ubuntu-latest
     
     steps:
@@ -28,3 +28,8 @@ jobs:
       working-directory: ./backend
       run: |
         pytest --cov=app --cov-report=term-missing --cov-fail-under=80
+    
+    - name: Build Docker image
+      working-directory: ./backend
+      run: |
+        docker build -t promptlab-api:${{ github.sha }} .
