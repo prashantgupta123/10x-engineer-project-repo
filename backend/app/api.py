@@ -15,6 +15,10 @@ from app.storage import storage
 from app.utils import sort_prompts_by_date, filter_prompts_by_collection, search_prompts
 from app import __version__
 
+# Constants
+ERROR_PROMPT_NOT_FOUND = "Prompt not found"
+ERROR_COLLECTION_NOT_FOUND = "Collection not found"
+ERROR_VERSION_NOT_FOUND = "Version not found"
 
 app = FastAPI(
     title="PromptLab API",
@@ -30,6 +34,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ============== Helper Functions ==============
+
+def _validate_collection_exists(collection_id: Optional[str]) -> None:
+    """Validate that a collection exists if collection_id is provided.
+    
+    Args:
+        collection_id: The collection ID to validate.
+        
+    Raises:
+        HTTPException: If collection_id is provided but collection doesn't exist.
+    """
+    if collection_id and not storage.get_collection(collection_id):
+        raise HTTPException(status_code=400, detail=ERROR_COLLECTION_NOT_FOUND)
 
 
 # ============== Health Check ==============
@@ -89,14 +108,10 @@ def get_prompt(prompt_id: str):
     Raises:
         HTTPException: If the prompt is not found, a 404 error is raised.
     """
-    # Retrieve prompt
     prompt = storage.get_prompt(prompt_id)
-    
-    # Check if prompt exists. If not, raise 404 error.
     if not prompt:
-        raise HTTPException(status_code=404, detail="Prompt not found")
-    else:
-        return prompt
+        raise HTTPException(status_code=404, detail=ERROR_PROMPT_NOT_FOUND)
+    return prompt
 
 
 @app.post("/prompts", response_model=Prompt, status_code=201)
@@ -112,12 +127,7 @@ def create_prompt(prompt_data: PromptCreate):
     Raises:
         HTTPException: If the specified collection does not exist, a 400 error is raised.
     """
-    # Validate collection exists if provided
-    if prompt_data.collection_id:
-        collection = storage.get_collection(prompt_data.collection_id)
-        if not collection:
-            raise HTTPException(status_code=400, detail="Collection not found")
-    
+    _validate_collection_exists(prompt_data.collection_id)
     prompt = Prompt(**prompt_data.model_dump())
     return storage.create_prompt(prompt)
 
@@ -138,13 +148,9 @@ def update_prompt(prompt_id: str, prompt_data: PromptUpdate):
     """
     existing = storage.get_prompt(prompt_id)
     if not existing:
-        raise HTTPException(status_code=404, detail="Prompt not found")
+        raise HTTPException(status_code=404, detail=ERROR_PROMPT_NOT_FOUND)
     
-    # Validate collection if provided
-    if prompt_data.collection_id:
-        collection = storage.get_collection(prompt_data.collection_id)
-        if not collection:
-            raise HTTPException(status_code=400, detail="Collection not found")
+    _validate_collection_exists(prompt_data.collection_id)
     
     updated_prompt = Prompt(
         id=existing.id,
@@ -175,17 +181,13 @@ def partial_update_prompt(prompt_id: str, prompt_data: PromptUpdate):
     """
     existing = storage.get_prompt(prompt_id)
     if not existing:
-        raise HTTPException(status_code=404, detail="Prompt not found")
+        raise HTTPException(status_code=404, detail=ERROR_PROMPT_NOT_FOUND)
     
-    # Validate collection if provided
-    if prompt_data.collection_id:
-        collection = storage.get_collection(prompt_data.collection_id)
-        if not collection:
-            raise HTTPException(status_code=400, detail="Collection not found")
-
-    # Update only the fields provided in the request
-    updated_data = existing.model_dump()
     update_fields = prompt_data.model_dump(exclude_unset=True)
+    if 'collection_id' in update_fields:
+        _validate_collection_exists(update_fields['collection_id'])
+
+    updated_data = existing.model_dump()
     updated_data.update(update_fields)
     updated_data['id'] = existing.id
     updated_data['created_at'] = existing.created_at
@@ -209,8 +211,7 @@ def delete_prompt(prompt_id: str):
         HTTPException: If the prompt is not found, a 404 error is raised.
     """
     if not storage.delete_prompt(prompt_id):
-        raise HTTPException(status_code=404, detail="Prompt not found")
-    return None
+        raise HTTPException(status_code=404, detail=ERROR_PROMPT_NOT_FOUND)
 
 
 # ============== Collection Endpoints ==============
@@ -241,7 +242,7 @@ def get_collection(collection_id: str):
     """
     collection = storage.get_collection(collection_id)
     if not collection:
-        raise HTTPException(status_code=404, detail="Collection not found")
+        raise HTTPException(status_code=404, detail=ERROR_COLLECTION_NOT_FOUND)
     return collection
 
 
@@ -271,19 +272,12 @@ def delete_collection(collection_id: str):
     Raises:
         HTTPException: If the collection is not found, a 404 error is raised.
     """
-    # Attempt to delete the collection
     if not storage.delete_collection(collection_id):
-        raise HTTPException(status_code=404, detail="Collection not found")
+        raise HTTPException(status_code=404, detail=ERROR_COLLECTION_NOT_FOUND)
 
-    # Retrieve prompts associated with the collection
     prompts = storage.get_prompts_by_collection(collection_id)
-
-    # Delete each prompt associated with the collection
     for prompt in prompts:
         storage.delete_prompt(prompt.id)
-
-    # No return needed for HTTP 204 No Content
-    return None
 
 
 # ============== Prompt Version Endpoints ==============
@@ -302,10 +296,13 @@ def list_prompt_versions(prompt_id: str):
         HTTPException: If the prompt is not found, a 404 error is raised.
     """
     if not storage.get_prompt(prompt_id):
-        raise HTTPException(status_code=404, detail="Prompt not found")
+        raise HTTPException(status_code=404, detail=ERROR_PROMPT_NOT_FOUND)
     
-    versions = storage.get_versions_by_prompt(prompt_id)
-    versions.sort(key=lambda v: v.version_number, reverse=True)
+    versions = sorted(
+        storage.get_versions_by_prompt(prompt_id),
+        key=lambda v: v.version_number,
+        reverse=True
+    )
     
     return PromptVersionList(versions=versions, total=len(versions))
 
@@ -326,8 +323,7 @@ def get_prompt_version(prompt_id: str, version_id: str):
     """
     version = storage.get_version(version_id)
     if not version or version.prompt_id != prompt_id:
-        raise HTTPException(status_code=404, detail="Version not found")
-    
+        raise HTTPException(status_code=404, detail=ERROR_VERSION_NOT_FOUND)
     return version
 
 
@@ -346,10 +342,9 @@ def create_prompt_version(prompt_id: str, version_data: PromptVersionCreate):
         HTTPException: If the prompt is not found, a 404 error is raised.
     """
     if not storage.get_prompt(prompt_id):
-        raise HTTPException(status_code=404, detail="Prompt not found")
+        raise HTTPException(status_code=404, detail=ERROR_PROMPT_NOT_FOUND)
     
     next_version_number = storage.get_latest_version_number(prompt_id) + 1
-    
     version = PromptVersion(
         prompt_id=prompt_id,
         version_number=next_version_number,
@@ -375,10 +370,9 @@ def revert_to_version(prompt_id: str, version_id: str):
     """
     old_version = storage.get_version(version_id)
     if not old_version or old_version.prompt_id != prompt_id:
-        raise HTTPException(status_code=404, detail="Version not found")
+        raise HTTPException(status_code=404, detail=ERROR_VERSION_NOT_FOUND)
     
     next_version_number = storage.get_latest_version_number(prompt_id) + 1
-    
     new_version = PromptVersion(
         prompt_id=prompt_id,
         title=old_version.title,
