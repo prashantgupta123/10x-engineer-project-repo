@@ -155,3 +155,62 @@ class HealthResponse(BaseModel):
     status: str
     version: str
 
+
+# ============== Prompt Version Models ==============
+
+class PromptVersionBase(BaseModel):
+    """Base model for prompt version data.
+    
+    Attributes:
+        title (str): Version title, 1-200 characters.
+        content (str): Version content, minimum 1 character.
+        description (Optional[str]): Optional description of changes, max 500 characters.
+    """
+    title: str = Field(..., min_length=1, max_length=200)
+    content: str = Field(..., min_length=1)
+    description: Optional[str] = Field(None, max_length=500)
+
+
+class PromptVersionCreate(PromptVersionBase):
+    """Model for creating a new prompt version.
+    
+    Inherits all fields from PromptVersionBase.
+    """
+    pass
+
+
+class PromptVersion(BaseModel):
+    """Complete prompt version model with all fields.
+    
+    Attributes:
+        id (str): Unique identifier, auto-generated.
+        prompt_id (str): ID of the parent prompt.
+        title (str): Version title, 1-200 characters.
+        content (str): Version content, minimum 1 character.
+        description (Optional[str]): Optional description of changes.
+        version_number (int): Sequential version number (1, 2, 3...).
+        created_at (datetime): Creation timestamp, auto-generated.
+    """
+    id: str = Field(default_factory=generate_id)
+    prompt_id: str
+    title: str = Field(..., min_length=1, max_length=200)
+    content: str = Field(..., min_length=1)
+    description: Optional[str] = Field(None, max_length=500)
+    version_number: int = Field(..., ge=1)
+    created_at: datetime = Field(default_factory=get_current_time)
+
+    model_config = {
+        'from_attributes': True
+    }
+
+
+class PromptVersionList(BaseModel):
+    """Response model for list of prompt versions.
+    
+    Attributes:
+        versions (List[PromptVersion]): List of version objects.
+        total (int): Total count of versions.
+    """
+    versions: List[PromptVersion]
+    total: int
+

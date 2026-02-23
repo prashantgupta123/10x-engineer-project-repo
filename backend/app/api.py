@@ -8,6 +8,7 @@ from app.models import (
     Prompt, PromptCreate, PromptUpdate,
     Collection, CollectionCreate,
     PromptList, CollectionList, HealthResponse,
+    PromptVersion, PromptVersionCreate, PromptVersionList,
     get_current_time
 )
 from app.storage import storage
@@ -283,3 +284,107 @@ def delete_collection(collection_id: str):
 
     # No return needed for HTTP 204 No Content
     return None
+
+
+# ============== Prompt Version Endpoints ==============
+
+@app.get("/prompts/{prompt_id}/versions", response_model=PromptVersionList)
+def list_prompt_versions(prompt_id: str):
+    """Lists all versions for a specific prompt.
+
+    Args:
+        prompt_id (str): The ID of the prompt.
+
+    Returns:
+        PromptVersionList: A list of versions sorted by version number (newest first).
+
+    Raises:
+        HTTPException: If the prompt is not found, a 404 error is raised.
+    """
+    if not storage.get_prompt(prompt_id):
+        raise HTTPException(status_code=404, detail="Prompt not found")
+    
+    versions = storage.get_versions_by_prompt(prompt_id)
+    versions.sort(key=lambda v: v.version_number, reverse=True)
+    
+    return PromptVersionList(versions=versions, total=len(versions))
+
+
+@app.get("/prompts/{prompt_id}/versions/{version_id}", response_model=PromptVersion)
+def get_prompt_version(prompt_id: str, version_id: str):
+    """Retrieves a specific version of a prompt.
+
+    Args:
+        prompt_id (str): The ID of the prompt.
+        version_id (str): The ID of the version.
+
+    Returns:
+        PromptVersion: The version object if found.
+
+    Raises:
+        HTTPException: If the version is not found, a 404 error is raised.
+    """
+    version = storage.get_version(version_id)
+    if not version or version.prompt_id != prompt_id:
+        raise HTTPException(status_code=404, detail="Version not found")
+    
+    return version
+
+
+@app.post("/prompts/{prompt_id}/versions", response_model=PromptVersion, status_code=201)
+def create_prompt_version(prompt_id: str, version_data: PromptVersionCreate):
+    """Creates a new version for a prompt.
+
+    Args:
+        prompt_id (str): The ID of the prompt.
+        version_data (PromptVersionCreate): Data for the new version.
+
+    Returns:
+        PromptVersion: The created version object.
+
+    Raises:
+        HTTPException: If the prompt is not found, a 404 error is raised.
+    """
+    if not storage.get_prompt(prompt_id):
+        raise HTTPException(status_code=404, detail="Prompt not found")
+    
+    next_version_number = storage.get_latest_version_number(prompt_id) + 1
+    
+    version = PromptVersion(
+        prompt_id=prompt_id,
+        version_number=next_version_number,
+        **version_data.model_dump()
+    )
+    
+    return storage.create_version(version)
+
+
+@app.post("/prompts/{prompt_id}/versions/{version_id}/revert", response_model=PromptVersion, status_code=201)
+def revert_to_version(prompt_id: str, version_id: str):
+    """Reverts a prompt to a previous version by creating a new version.
+
+    Args:
+        prompt_id (str): The ID of the prompt.
+        version_id (str): The ID of the version to revert to.
+
+    Returns:
+        PromptVersion: The newly created version with reverted content.
+
+    Raises:
+        HTTPException: If the version is not found, a 404 error is raised.
+    """
+    old_version = storage.get_version(version_id)
+    if not old_version or old_version.prompt_id != prompt_id:
+        raise HTTPException(status_code=404, detail="Version not found")
+    
+    next_version_number = storage.get_latest_version_number(prompt_id) + 1
+    
+    new_version = PromptVersion(
+        prompt_id=prompt_id,
+        title=old_version.title,
+        content=old_version.content,
+        description=f"Reverted to version {old_version.version_number}",
+        version_number=next_version_number
+    )
+    
+    return storage.create_version(new_version)

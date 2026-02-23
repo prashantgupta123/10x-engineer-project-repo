@@ -5,7 +5,7 @@ In a production environment, this would be replaced with a database.
 """
 
 from typing import Dict, List, Optional
-from app.models import Prompt, Collection
+from app.models import Prompt, Collection, PromptVersion
 
 
 class Storage:
@@ -22,6 +22,7 @@ class Storage:
     def __init__(self):
         self._prompts: Dict[str, Prompt] = {}
         self._collections: Dict[str, Collection] = {}
+        self._prompt_versions: Dict[str, PromptVersion] = {}
     
     # ============== Prompt Operations ==============
     
@@ -152,6 +153,55 @@ class Storage:
         """
         self._prompts.clear()
         self._collections.clear()
+        self._prompt_versions.clear()
+    
+    # ============== Prompt Version Operations ==============
+    
+    def create_version(self, version: PromptVersion) -> PromptVersion:
+        """Create a new prompt version.
+        
+        Args:
+            version (PromptVersion): The version object to store.
+            
+        Returns:
+            PromptVersion: The stored version object.
+        """
+        self._prompt_versions[version.id] = version
+        return version
+    
+    def get_version(self, version_id: str) -> Optional[PromptVersion]:
+        """Retrieve a version by ID.
+        
+        Args:
+            version_id (str): The unique identifier of the version.
+            
+        Returns:
+            Optional[PromptVersion]: The version object if found, None otherwise.
+        """
+        return self._prompt_versions.get(version_id)
+    
+    def get_versions_by_prompt(self, prompt_id: str) -> List[PromptVersion]:
+        """Get all versions for a specific prompt.
+        
+        Args:
+            prompt_id (str): The unique identifier of the prompt.
+            
+        Returns:
+            List[PromptVersion]: List of versions for the prompt.
+        """
+        return [v for v in self._prompt_versions.values() if v.prompt_id == prompt_id]
+    
+    def get_latest_version_number(self, prompt_id: str) -> int:
+        """Get the highest version number for a prompt.
+        
+        Args:
+            prompt_id (str): The unique identifier of the prompt.
+            
+        Returns:
+            int: The highest version number, or 0 if no versions exist.
+        """
+        versions = self.get_versions_by_prompt(prompt_id)
+        return max([v.version_number for v in versions], default=0)
 
 
 # Global storage instance
