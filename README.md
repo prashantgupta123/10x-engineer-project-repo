@@ -262,116 +262,73 @@ if __name__ == "__main__":
 ### Prerequisites
 
 - Python 3.10 or higher
-- pip (Python package manager)
-- Virtual environment tool (venv, virtualenv, or conda)
+- Node.js 18 or higher
+- Docker & Docker Compose (for containerized setup)
 
-### Step-by-Step Setup
+---
 
-**1. Clone the Repository**
+### Option 1: Docker (Recommended)
+
+Run the entire stack with a single command from the project root:
 
 ```bash
 git clone https://github.com/prashantgupta123/10x-engineer-project-repo.git
-cd 10x-engineer-project-repo/backend
+cd 10x-engineer-project-repo
+
+docker-compose up --build
 ```
 
-**2. Create Virtual Environment**
+| Service  | URL |
+|----------|-----|
+| Frontend | http://localhost:80 |
+| Backend API | http://localhost:8000 |
+| API Docs | http://localhost:8000/docs |
 
 ```bash
-# Create virtual environment
-python3 -m venv venv
-
-# Activate (macOS/Linux)
-source venv/bin/activate
-
-# Activate (Windows)
-venv\Scripts\activate
-```
-
-**3. Install Dependencies**
-
-```bash
-pip install -r requirements.txt
-```
-
-**Dependencies Explained:**
-
-- `fastapi==0.109.0`: Web framework
-- `uvicorn==0.27.0`: ASGI server
-- `pydantic==2.5.3`: Data validation
-- `pytest==7.4.4`: Testing framework
-- `pytest-cov==4.1.0`: Code coverage
-- `httpx==0.26.0`: HTTP client for testing
-
-**4. Run the Server**
-
-```bash
-# Option 1: Using main.py
-python main.py
-
-# Option 2: Using uvicorn directly
-uvicorn app.api:app --reload --host 0.0.0.0 --port 8000
-```
-
-**5. Verify Installation**
-
-```bash
-# Health check
-curl http://localhost:8000/health
-
-# Expected response:
-# {"status":"healthy","version":"0.1.0"}
-```
-
-**6. Access API Documentation**
-
-Open your browser and navigate to:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
-
-### Running Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run with coverage report
-pytest --cov=app --cov-report=html
-
-# Run specific test class
-pytest tests/test_api.py::TestPrompts -v
-```
-
-### Docker Setup
-
-**Build and run with Docker:**
-
-```bash
-# Build the Docker image
-cd backend
-docker build -t promptlab-api .
-
-# Run the container
-docker run -p 8000:8000 promptlab-api
-```
-
-**Using Docker Compose (recommended for development):**
-
-```bash
-# From backend directory
-cd backend
-docker-compose up
-
 # Run in detached mode
-docker-compose up -d
+docker-compose up --build -d
 
 # Stop services
 docker-compose down
 ```
 
-Docker Compose provides:
-- Auto-reload on code changes
-- Volume mounting for live development
-- Easy service management
+---
+
+### Option 2: Local Development
+
+**Backend (Terminal 1)**
+
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python main.py
+```
+
+Backend runs on: `http://localhost:8000`
+
+**Frontend (Terminal 2)**
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend runs on: `http://localhost:3000`
+
+---
+
+### Running Tests
+
+```bash
+cd backend
+pytest
+
+# With coverage
+pytest --cov=app --cov-report=html
+```
 
 ---
 

@@ -24,6 +24,11 @@ Complete API documentation for PromptLab - AI Prompt Engineering Platform.
   - [Get Collection](#get-collection)
   - [Create Collection](#create-collection)
   - [Delete Collection](#delete-collection)
+- [Prompt Versions](#prompt-versions)
+  - [List Prompt Versions](#list-prompt-versions)
+  - [Get Prompt Version](#get-prompt-version)
+  - [Create Prompt Version](#create-prompt-version)
+  - [Revert to Version](#revert-to-version)
 - [Error Responses](#error-responses)
 
 ---
@@ -778,3 +783,175 @@ Future versions may introduce breaking changes with appropriate version prefixes
 For issues, questions, or feature requests:
 - **GitHub Issues:** https://github.com/prashantgupta123/10x-engineer-project-repo/issues
 - **Email:** prashant.gupta@tothenew.com
+
+
+---
+
+## Prompt Versions
+
+### List Prompt Versions
+
+Retrieve all versions for a specific prompt.
+
+**Endpoint:** `GET /prompts/{prompt_id}/versions`
+
+**Path Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| prompt_id | string | Yes | Unique prompt identifier |
+
+**Request Example (curl):**
+```bash
+curl http://localhost:8000/prompts/550e8400-e29b-41d4-a716-446655440000/versions
+```
+
+**Request Example (fetch):**
+```javascript
+fetch('http://localhost:8000/prompts/550e8400-e29b-41d4-a716-446655440000/versions')
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
+
+**Response (200 OK):**
+```json
+{
+  "versions": [
+    {
+      "id": "ver-123",
+      "prompt_id": "550e8400-e29b-41d4-a716-446655440000",
+      "version_number": 2,
+      "title": "Updated Title",
+      "content": "Updated content",
+      "description": "Version 2",
+      "created_at": "2024-01-15T11:00:00.000Z"
+    },
+    {
+      "id": "ver-122",
+      "prompt_id": "550e8400-e29b-41d4-a716-446655440000",
+      "version_number": 1,
+      "title": "Original Title",
+      "content": "Original content",
+      "description": "Initial version",
+      "created_at": "2024-01-15T10:00:00.000Z"
+    }
+  ],
+  "total": 2
+}
+```
+
+---
+
+### Get Prompt Version
+
+Retrieve a specific version of a prompt.
+
+**Endpoint:** `GET /prompts/{prompt_id}/versions/{version_id}`
+
+**Path Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| prompt_id | string | Yes | Unique prompt identifier |
+| version_id | string | Yes | Unique version identifier |
+
+**Request Example (curl):**
+```bash
+curl http://localhost:8000/prompts/550e8400-e29b-41d4-a716-446655440000/versions/ver-123
+```
+
+**Response (200 OK):**
+```json
+{
+  "id": "ver-123",
+  "prompt_id": "550e8400-e29b-41d4-a716-446655440000",
+  "version_number": 2,
+  "title": "Updated Title",
+  "content": "Updated content",
+  "description": "Version 2",
+  "created_at": "2024-01-15T11:00:00.000Z"
+}
+```
+
+**Error Response (404 Not Found):**
+```json
+{
+  "detail": "Version not found"
+}
+```
+
+---
+
+### Create Prompt Version
+
+Create a new version for a prompt.
+
+**Endpoint:** `POST /prompts/{prompt_id}/versions`
+
+**Path Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| prompt_id | string | Yes | Unique prompt identifier |
+
+**Request Body:**
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| title | string | Yes | Version title (1-200 chars) |
+| content | string | Yes | Version content (min 1 char) |
+| description | string | No | Optional description (max 500 chars) |
+
+**Request Example (curl):**
+```bash
+curl -X POST http://localhost:8000/prompts/550e8400-e29b-41d4-a716-446655440000/versions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "New Version Title",
+    "content": "New version content",
+    "description": "Version 3"
+  }'
+```
+
+**Response (201 Created):**
+```json
+{
+  "id": "ver-124",
+  "prompt_id": "550e8400-e29b-41d4-a716-446655440000",
+  "version_number": 3,
+  "title": "New Version Title",
+  "content": "New version content",
+  "description": "Version 3",
+  "created_at": "2024-01-15T12:00:00.000Z"
+}
+```
+
+---
+
+### Revert to Version
+
+Revert a prompt to a previous version by creating a new version with the old content.
+
+**Endpoint:** `POST /prompts/{prompt_id}/versions/{version_id}/revert`
+
+**Path Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| prompt_id | string | Yes | Unique prompt identifier |
+| version_id | string | Yes | Version ID to revert to |
+
+**Request Example (curl):**
+```bash
+curl -X POST http://localhost:8000/prompts/550e8400-e29b-41d4-a716-446655440000/versions/ver-122/revert
+```
+
+**Response (201 Created):**
+```json
+{
+  "id": "ver-125",
+  "prompt_id": "550e8400-e29b-41d4-a716-446655440000",
+  "version_number": 4,
+  "title": "Original Title",
+  "content": "Original content",
+  "description": "Reverted to version 1",
+  "created_at": "2024-01-15T13:00:00.000Z"
+}
+```
+
+---
